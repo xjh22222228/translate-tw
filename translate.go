@@ -57,6 +57,7 @@ var ignoreExtMap = map[string]bool{
 var (
     pathFlag string
     extFlag string
+    excludeFlag string
     verFlag bool
 
     wg sync.WaitGroup
@@ -72,12 +73,20 @@ func ReadPath(p string) []string {
         log.Panicln("Not path：", err)
     }
 
+    // ext
     extList := strings.Split(extFlag, "|")
     extMap := make(map[string]string, len(extList))
-
     for _, v := range extList {
         v = strings.TrimSpace(v)
         extMap[v] = v
+    }
+
+    // exclude
+    excludeList := strings.Split(excludeFlag, "|")
+    excludeMap := make(map[string]string, len(excludeList))
+    for _, v := range excludeList {
+        v = strings.TrimSpace(v)
+        excludeMap[v] = v
     }
 
     if fileInfo.IsDir() {
@@ -112,7 +121,7 @@ func writeFile(p string, twMap map[string]string)  {
     if err != nil {
         fmt.Printf(
             "%v %v, %v\n",
-            color.GreenString("ERR"),
+            color.RedString("ERR"),
             color.YellowString(p),
             err,
         )
@@ -130,7 +139,7 @@ func writeFile(p string, twMap map[string]string)  {
     if err != nil {
         fmt.Printf(
             "%v %v, %v\n",
-            color.GreenString("ERR"),
+            color.RedString("ERR"),
             color.YellowString(p),
             err,
         )
@@ -150,6 +159,8 @@ func Translate()  {
         panic(err)
     }
 
+    fmt.Printf(" %v\n\n", color.CyanString("Processing..."))
+
     paths := ReadPath(filepath.Join(pathFlag))
     wg.Add(len(paths))
 
@@ -168,6 +179,7 @@ func main()  {
 
     flag.StringVar(&pathFlag, "path", ".", "--path")
     flag.StringVar(&extFlag, "ext", "", "--ext")
+    flag.StringVar(&excludeFlag, "exclude", "", "--exclude")
     flag.BoolVar(&verFlag, "version", false, "--version")
     flag.Parse()
 
