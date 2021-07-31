@@ -1,0 +1,9 @@
+logs/
+coverage/
+.idea/
+.DS_Store
+.vscode/
+build/
+translate_build/
+tw_build/
+dist/
