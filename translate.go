@@ -52,6 +52,17 @@ var ignoreExtMap = map[string]bool{
     ".rm": true,
     ".mid": true,
     ".iso": true,
+    ".DS_Store": true,
+    ".mod": true,
+    ".sum": true,
+}
+
+// 跳过目录
+var defExcludeMap = map[string]bool{
+    ".git": true,
+    ".idea": true,
+    ".vscode": true,
+    "node_modules": true,
 }
 
 var (
@@ -83,14 +94,23 @@ func ReadPath(p string) []string {
 
     // exclude
     excludeList := strings.Split(excludeFlag, "|")
-    excludeMap := make(map[string]string, len(excludeList))
+    excludeMap := make(map[string]string, len(excludeList) + len(defExcludeMap))
     for _, v := range excludeList {
         v = strings.TrimSpace(v)
         excludeMap[v] = v
     }
+    for k := range defExcludeMap {
+        excludeMap[k] = k
+    }
 
     if fileInfo.IsDir() {
         err := filepath.Walk(p, func(path string, info fs.FileInfo, err error) error {
+            if info.IsDir() {
+                if _, ok := excludeMap[info.Name()]; ok {
+                    return filepath.SkipDir
+                }
+            }
+
             if !info.IsDir() {
                 ext := filepath.Ext(path)
                 _, isIgnore := ignoreExtMap[ext]
