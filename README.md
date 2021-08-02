@@ -27,7 +27,7 @@ Windows:
 | ------- |------------------ |
 | --path  | 指定文件或目录  |
 | --ext   | 过滤文件后缀，默认不过滤  |
-| --exclude   | 跳过指定目录，例如 `dist|build`  |
+| --exclude   | 跳过指定目录  |
 | --version   | 打印版本号  |
 
 
@@ -37,6 +37,9 @@ $ tw --path="./src"
 
 # 指定文件后缀
 $ tw --path="./src" --ext=".js|.jsx|go"
+
+# 跳过指定目录
+$ tw --path="./src" --exclude="node_modules|dist"
 ```
 
 
