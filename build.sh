@@ -30,11 +30,6 @@ build() {
   tar -cvf tw_build/${macBuildName}.tar tw_build/${macBuildName} && gzip tw_build/${macBuildName}.tar
   tar -cvf tw_build/${linuxBuildName}.tar tw_build/${linuxBuildName} && gzip tw_build/${linuxBuildName}.tar
   zip -j tw_build/${winBuildName}.zip tw_build/${winBuildName}.exe
-
-  # Remove
-  rm -f tw_build/${macBuildName}
-  rm -f tw_build/${linuxBuildName}
-  rm -f tw_build/${winBuildName}.exe
 }
 
 build
