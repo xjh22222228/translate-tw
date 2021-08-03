@@ -24,7 +24,7 @@ var s []byte
 var ascii string
 
 const (
-    version = "v1.0.1"
+    version = "v1.0.2"
 )
 
 // 跳过这些后缀文件
@@ -55,6 +55,13 @@ var ignoreExtMap = map[string]bool{
     ".DS_Store": true,
     ".mod": true,
     ".sum": true,
+    ".ttf": true,
+    ".woff": true,
+    ".eot": true,
+    ".otf": true,
+    ".fon": true,
+    ".font": true,
+    ".ttc": true,
 }
 
 // 跳过目录
@@ -81,7 +88,7 @@ func ReadPath(p string) []string {
 
     fileInfo, err := os.Stat(p)
     if err != nil {
-        log.Panicln("Not path：", err)
+        log.Panicln("[tw]: ", err)
     }
 
     // ext
@@ -208,7 +215,7 @@ func main()  {
         Translate()
 
         n := time.Since(start).Seconds()
-        fmt.Printf("Time: %vs", n)
+        fmt.Printf("Time: %vs\n", n)
     } else {
         fmt.Printf("Version %v \n", version)
     }
