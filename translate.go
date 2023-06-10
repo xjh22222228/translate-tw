@@ -57,6 +57,8 @@ var ignoreExtMap = map[string]bool{
 	".sum":      true,
 	".ttf":      true,
 	".woff":     true,
+	".woff2":    true,
+	".wav":      true,
 	".eot":      true,
 	".otf":      true,
 	".fon":      true,
