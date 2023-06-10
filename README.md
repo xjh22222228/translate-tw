@@ -28,6 +28,8 @@ Windows:
 | --path  | 指定文件或目录  |
 | --ext   | 过滤文件后缀，默认不过滤  |
 | --exclude   | 跳过指定目录  |
+| --start   | 匹配開始行數和位置    |
+| --end     | 匹配結束行數和位置    |
 | --version   | 打印版本号  |
 
 
@@ -40,6 +42,9 @@ $ tw --path="./src" --ext=".js|.jsx|go"
 
 # 跳过指定目录
 $ tw --path="./src" --exclude="node_modules|dist"
+
+# 匹配位置, 必須傳入 --start 和 --end 參數
+$ tw --path="./src" --start='{"line":4066,"character":0}' --end='{"line":4066,"character":0}'
 ```
 
 

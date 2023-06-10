@@ -17,9 +17,9 @@ build() {
   GOOS=windows GOARCH=${GOARCH} go build -o $winBuildName.exe translate.go
 
   # Compress
-  upx $macBuildName
-  upx $linuxBuildName
-  upx $winBuildName.exe
+#  upx $macBuildName
+#  upx $linuxBuildName
+#  upx $winBuildName.exe
 
   # Move
   mv -f $macBuildName tw_build/$macBuildName
