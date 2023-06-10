@@ -2,10 +2,10 @@
 
 set -e
 
-if [ "$(uname -m)" != "x86_64" ]; then
-	echo "Error: Unsupported architecture $(uname -m). Only x64 binaries are available." 1>&2
-	exit 1
-fi
+# if [ "$(uname -m)" != "x86_64" ]; then
+# 	echo "Error: Unsupported architecture $(uname -m). Only x64 binaries are available." 1>&2
+# 	exit 1
+# fi
 
 if ! command -v tar >/dev/null; then
 	echo "Error: tar is required to install." 1>&2
