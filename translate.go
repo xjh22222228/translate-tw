@@ -24,7 +24,7 @@ var s []byte
 var ascii string
 
 const (
-	version = "v1.1.1"
+	version = "v1.1.2"
 )
 
 // 跳過這些後綴文件
