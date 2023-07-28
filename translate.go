@@ -24,8 +24,11 @@ var s []byte
 var ascii string
 
 const (
-	version = "v1.1.2"
+	version = "v1.1.3"
 )
+
+var twMap map[string]string
+var err = json.Unmarshal(s, &twMap)
 
 // 跳過這些後綴文件
 var ignoreExtMap = map[string]bool{
@@ -86,7 +89,15 @@ var (
 )
 
 // 中文正則字符串匹配
-var chineseReg = regexp.MustCompile("[\u4e00-\u9fa5]")
+var chineseReg = regexp.MustCompile(".")
+
+// 特殊字符处理，例如只有"复制"才会转换成"複製"，其他制都不会转换
+var characters = map[string][]string{
+	"制": []string{"複", "复"}, // 假设 key 的前一个字符是 value 则需要转换
+}
+
+// 记录上一个字符
+var beforeChar = ""
 
 type Position struct {
 	Line      int `json:"line"`
@@ -149,7 +160,31 @@ func ReadPath(p string) []string {
 	return paths
 }
 
-func writeFile(p string, twMap map[string]string) {
+func replaceAllStringFunc(s2 string) string {
+	if _, ok := twMap[s2]; ok {
+		if _, ok2 := characters[s2]; ok2 {
+			var flag bool
+			for i := 0; i < len(characters[s2]); i++ {
+				str := characters[s2][i]
+				if str == beforeChar {
+					flag = true
+					break
+				}
+			}
+			if flag {
+				s2 = twMap[s2]
+			}
+		} else {
+			s2 = twMap[s2]
+		}
+	}
+	if s2 != " " {
+		beforeChar = s2
+	}
+	return s2
+}
+
+func writeFile(p string) {
 	defer func() {
 		wg.Done()
 	}()
@@ -166,12 +201,7 @@ func writeFile(p string, twMap map[string]string) {
 	}
 
 	content := string(b)
-	f := chineseReg.ReplaceAllStringFunc(content, func(s2 string) string {
-		if _, ok := twMap[s2]; ok {
-			s2 = twMap[s2]
-		}
-		return s2
-	})
+	f := chineseReg.ReplaceAllStringFunc(content, replaceAllStringFunc)
 	err = os.WriteFile(p, []byte(f), 0666)
 	if err != nil {
 		fmt.Printf(
@@ -190,12 +220,6 @@ func writeFile(p string, twMap map[string]string) {
 }
 
 func Translate() {
-	var twMap map[string]string
-	err := json.Unmarshal(s, &twMap)
-	if err != nil {
-		panic(err)
-	}
-
 	fmt.Printf(" %v\n\n", color.CyanString("Processing..."))
 
 	paths := ReadPath(filepath.Join(pathFlag))
@@ -246,43 +270,19 @@ func Translate() {
 			// 替換需要替換的部分
 			// 截取的是同一行
 			if i == start.Line-1 && i == end.Line-1 {
-				fmt.Println("::1")
 				str := line[start.Character:end.Character]
-				lines[i] = chineseReg.ReplaceAllStringFunc(string(str), func(s2 string) string {
-					if _, ok := twMap[s2]; ok {
-						s2 = twMap[s2]
-					}
-					return s2
-				})
+				lines[i] = chineseReg.ReplaceAllStringFunc(string(str), replaceAllStringFunc)
 				lines[i] = string(line[:start.Character]) + lines[i] + string(line[end.Character:])
 			} else if i == start.Line-1 {
-				fmt.Println("::2")
 				str := line[start.Character:lineLen]
-				lines[i] = chineseReg.ReplaceAllStringFunc(string(str), func(s2 string) string {
-					if _, ok := twMap[s2]; ok {
-						s2 = twMap[s2]
-					}
-					return s2
-				})
+				lines[i] = chineseReg.ReplaceAllStringFunc(string(str), replaceAllStringFunc)
 				lines[i] = string(line[:start.Character]) + lines[i]
 			} else if i == end.Line-1 {
-				fmt.Println("::3")
 				str := line[:end.Character]
-				lines[i] = chineseReg.ReplaceAllStringFunc(string(str), func(s2 string) string {
-					if _, ok := twMap[s2]; ok {
-						s2 = twMap[s2]
-					}
-					return s2
-				})
+				lines[i] = chineseReg.ReplaceAllStringFunc(string(str), replaceAllStringFunc)
 				lines[i] += string(line[end.Character:])
 			} else {
-				fmt.Println("::4")
-				lines[i] = chineseReg.ReplaceAllStringFunc(lines[i], func(s2 string) string {
-					if _, ok := twMap[s2]; ok {
-						s2 = twMap[s2]
-					}
-					return s2
-				})
+				lines[i] = chineseReg.ReplaceAllStringFunc(lines[i], replaceAllStringFunc)
 			}
 		}
 
@@ -295,7 +295,7 @@ func Translate() {
 
 		for _, p := range paths {
 			go func(p string) {
-				writeFile(p, twMap)
+				writeFile(p)
 			}(p)
 		}
 		wg.Wait()
